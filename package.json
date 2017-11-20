@@ -1,0 +1,30 @@
+{
+  "name": "geom-merge",
+  "version": "1.0.0",
+  "description": "Merges multiple geometries into one",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Marcin Ignac",
+    "email": "marcin.ignac@gmail.com",
+    "url": "https://github.com/vorg"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "pex",
+    "geometry",
+    "webgl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vorg/geom-merge.git"
+  },
+  "homepage": "https://github.com/vorg/geom-merge",
+  "bugs": {
+    "url": "https://github.com/vorg/geom-merge/issues"
+  }
+}
