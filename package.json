@@ -1,6 +1,6 @@
 {
   "name": "geom-merge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Merges multiple geometries into one",
   "main": "index.js",
   "license": "MIT",
