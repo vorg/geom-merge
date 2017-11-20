@@ -1,11 +1,8 @@
-bower_components
 node_modules
 *.log
 .DS_Store
 bundle.js
-test
-test.js
-demo/
+example/
 screenshot.jpg
 .npmignore
 LICENSE.md
