@@ -1,6 +1,6 @@
 # geom-merge
 
-[![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+![](screenshot.jpg)
 
 Merges multiple geometries into one.
 
@@ -22,7 +22,8 @@ var g = merge([cube, sphere])
 
 Returns new geometry with merged attributes and cells from provided geometries.
 
-*Notes: Each geometry object requires at least `positions` (array of [x, y, z]) and `cells` (array of [i, j, k]) properties. Other properties like `uvs` or `normals` will be merged as well if available in all geometries.*
+*Note 1: Each geometry object requires at least `positions` (array of [x, y, z]) and `cells` (array of [i, j, k]) properties. Other properties like `uvs` or `normals` will be merged as well if available in all geometries.*
+*Note 2: This module doesn't perform CSG operations*
 
 ## License
 
