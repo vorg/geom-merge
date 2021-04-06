@@ -28,7 +28,7 @@ function merge (geometries) {
       result.normals = result.normals.concat(g.normals)
     }
     if (hasUVs) {
-      result.uvs = result.uvs.concat(g.positions)
+      result.uvs = result.uvs.concat(g.uvs)
     }
     for (var faceIndex = 0, numFaces = g.cells.length; faceIndex < numFaces; faceIndex++) {
       var face = g.cells[faceIndex]
