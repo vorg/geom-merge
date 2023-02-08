@@ -13,13 +13,10 @@ npm install geom-merge
 ## Usage
 
 ```js
-import geomMerge from "geom-merge";
+import merge from "geom-merge";
+import { cube, sphere } from "primitive-geometry";
 
-var merge = require("geom-merge");
-var cube = require("primitive-cube")();
-var sphere = require("primitive-sphere")();
-
-var g = merge([cube, sphere]);
+const geometry = merge([cube, sphere]);
 ```
 
 ## API
