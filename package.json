@@ -1,30 +1,48 @@
 {
   "name": "geom-merge",
   "version": "1.0.2",
-  "description": "Merges multiple geometries into one",
-  "main": "index.js",
-  "license": "MIT",
-  "author": {
-    "name": "Marcin Ignac",
-    "email": "marcin.ignac@gmail.com",
-    "url": "https://github.com/vorg"
-  },
-  "dependencies": {},
-  "devDependencies": {},
-  "scripts": {
-    "test": "node test.js"
-  },
+  "description": "Merge a list of geometries (simplicial complex) into one geometry and concat all other attributes.",
   "keywords": [
+    "geom",
+    "merge",
+    "simplicial",
+    "complex",
+    "3d",
     "pex",
     "geometry",
     "webgl"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/vorg/geom-merge.git"
-  },
   "homepage": "https://github.com/vorg/geom-merge",
-  "bugs": {
-    "url": "https://github.com/vorg/geom-merge/issues"
+  "bugs": "https://github.com/vorg/geom-merge/issues",
+  "repository": "vorg/geom-merge",
+  "license": "MIT",
+  "author": "Marcin Ignac <marcin.ignac@gmail.com> (https://github.com/vorg)",
+  "contributors": [
+    "Damien Seguin (https://github.com/dmnsgn)"
+  ],
+  "type": "module",
+  "exports": "./index.js",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "dev": "snowdev dev",
+    "release": "snowdev release"
+  },
+  "dependencies": {
+    "typed-array-concat": "^3.0.0",
+    "typed-array-constructor": "^1.0.1"
+  },
+  "devDependencies": {
+    "es-module-shims": "^1.6.3",
+    "pex-cam": "^3.0.0-alpha.1",
+    "pex-context": "^3.0.0-alpha.6",
+    "pex-math": "^4.0.0-alpha.3",
+    "primitive-cube": "^2.0.1",
+    "primitive-geometry": "^2.9.1",
+    "primitive-sphere": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

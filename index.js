@@ -1,47 +1,64 @@
-/**
- * Merges list of geometries (simplicial complex) into one geometry.
- * @param  {Array of Geometry} geometries - list of geometries to be merged
- * @return {Geometry} - merged geometry with positions, cells and optionally uvs and normals (autodetected base on the first geometry in the list)
- */
-function merge (geometries) {
-  var result = {
-    positions: [],
-    cells: []
-  }
+import typedArrayConcat from "typed-array-concat";
+import typedArrayConstructor from "typed-array-constructor";
 
-  var hasNormals = geometries[0].normals !== undefined
-  var hasUVs = geometries[0].uvs !== undefined
+function merge(geometries) {
+  const isTypedArray = !Array.isArray(geometries[0].positions);
 
-  if (hasNormals) {
-    result.normals = []
-  }
+  const CellsConstructor = isTypedArray
+    ? typedArrayConstructor(
+        geometries.reduce(
+          (sum, geometry) =>
+            sum + geometry.positions.length / (isTypedArray ? 3 : 1),
+          0
+        )
+      )
+    : Array;
 
-  if (hasUVs) {
-    result.uvs = []
-  }
+  const mergedGeometry = { cells: new CellsConstructor() };
 
-  var vertexOffset = 0
-  for (var idx = 0, numGeometries = geometries.length; idx < numGeometries; idx++) {
-    var g = geometries[idx]
-    result.positions = result.positions.concat(g.positions)
-    if (hasNormals) {
-      result.normals = result.normals.concat(g.normals)
-    }
-    if (hasUVs) {
-      result.uvs = result.uvs.concat(g.uvs)
-    }
-    for (var faceIndex = 0, numFaces = g.cells.length; faceIndex < numFaces; faceIndex++) {
-      var face = g.cells[faceIndex]
-      var newFace = []
-      for (var i = 0, numVertices = face.length; i < numVertices; i++) {
-        newFace.push(face[i] + vertexOffset)
+  let vertexOffset = 0;
+
+  for (let i = 0; i < geometries.length; i++) {
+    const geometry = geometries[i];
+
+    const vertexCount = geometry.positions.length / (isTypedArray ? 3 : 1);
+
+    for (let attribute of Object.keys(geometry)) {
+      if (attribute === "cells") {
+        mergedGeometry.cells = isTypedArray
+          ? typedArrayConcat(
+              CellsConstructor,
+              mergedGeometry.cells,
+              // Add previous geometry vertex offset mapped via a new typed array
+              // because new value could be larger than what current type supports
+              new (typedArrayConstructor(vertexOffset + vertexCount))(
+                geometry.cells
+              ).map((n) => vertexOffset + n)
+            )
+          : mergedGeometry.cells.concat(
+              geometry.cells.map((cell) => cell.map((n) => vertexOffset + n))
+            );
+      } else {
+        const isAttributeTypedArray = !Array.isArray(geometry[attribute]);
+
+        mergedGeometry[attribute] ||= isAttributeTypedArray
+          ? new geometry[attribute].constructor()
+          : [];
+
+        mergedGeometry[attribute] = isAttributeTypedArray
+          ? typedArrayConcat(
+              mergedGeometry[attribute].constructor,
+              mergedGeometry[attribute],
+              geometry[attribute]
+            )
+          : mergedGeometry[attribute].concat(geometry[attribute]);
       }
-      result.cells.push(newFace)
     }
-    vertexOffset += g.positions.length
+
+    vertexOffset += vertexCount;
   }
 
-  return result
+  return mergedGeometry;
 }
 
-module.exports = merge
+export default merge;
