@@ -35,6 +35,7 @@ var g = merge([cube, sphere]);
 geometry: `{ positions: TypedArray|Array, cells: TypedArray|Array, ...otherAttributesMerged: TypedArray|Array }` - new geometry with merged attributes and cells from provided geometries.
 
 _Note 1: Each geometry object requires at least `positions` and `cells`. Other properties like `uvs` or `normals` will be merged as well if available in all geometries._
+
 _Note 2: This module doesn't perform CSG operations_
 
 ## License
