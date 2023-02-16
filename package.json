@@ -1,6 +1,6 @@
 {
   "name": "geom-merge",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Merge a list of geometries (simplicial complex) into one geometry and concat all other attributes.",
   "keywords": [
     "geom",
