@@ -16,7 +16,7 @@ npm install geom-merge
 import merge from "geom-merge";
 import { cube, sphere } from "primitive-geometry";
 
-const geometry = merge([cube, sphere]);
+const geometry = merge([cube(), sphere()]);
 ```
 
 ## API
