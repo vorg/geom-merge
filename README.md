@@ -16,7 +16,7 @@ npm install geom-merge
 import merge from "geom-merge";
 import { cube, sphere } from "primitive-geometry";
 
-const geometry = merge([cube, sphere]);
+const geometry = merge([cube(), sphere()]);
 ```
 
 ## API
@@ -29,9 +29,9 @@ const geometry = merge([cube, sphere]);
 
 **Returns**
 
-geometry: `{ positions: TypedArray|Array, cells: TypedArray|Array, ...otherAttributesMerged: TypedArray|Array }` - new geometry with merged attributes and cells from provided geometries.
+geometry: `{ positions: TypedArray | Array | Array<[x, y, z]>, cells: TypedArray | Array | Array<[a, b, c]>, ...otherAttributesMergedAndFlattened: TypedArray | Array }` - new geometry with cells, and merged/flattened attributes.
 
-_Note 1: Each geometry object requires at least `positions` and `cells`. Other properties like `uvs` or `normals` will be merged as well if available in all geometries._
+_Note 1: Each geometry object requires at least `positions` and `cells`. Other array-like properties like `uvs` or `normals` will be merged and flattened, if available in all geometries. Cells will be chunked if any of the geometries has chunked cells._
 
 _Note 2: This module doesn't perform CSG operations_
 
