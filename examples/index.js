@@ -45,30 +45,30 @@ oldCubeGeometry.oldCubeExtra = [];
 let geometry;
 // Single geometry
 geometry = merge([{ ...sphereGeometry }]);
-geometry = merge([{ ...oldSphereGeometry }]);
+// geometry = merge([{ ...oldSphereGeometry }]);
 
-// Flat typed array geometries
-geometry = merge([
-  { ...sphereGeometry },
-  { ...cubeGeometry },
-  // cube({ sx: 2, sy: 0.5, sz: 0.5, nx: 200, ny: 200, nz: 200 }), // Testing cells Uint16/32 scaling
-]);
+// // Flat typed array geometries
+// geometry = merge([
+//   { ...sphereGeometry },
+//   { ...cubeGeometry },
+//   // cube({ sx: 2, sy: 0.5, sz: 0.5, nx: 200, ny: 200, nz: 200 }), // Testing cells Uint16/32 scaling
+// ]);
 
-// Flat array geometries
-geometry = merge([
-  propertiesArrayFrom({ ...sphereGeometry }),
-  // sphere()
-  propertiesArrayFrom({ ...cubeGeometry }),
-]);
+// // Flat array geometries
+// geometry = merge([
+//   propertiesArrayFrom({ ...sphereGeometry }),
+//   // sphere()
+//   propertiesArrayFrom({ ...cubeGeometry }),
+// ]);
 
-// Chunked array geometries
-geometry = merge([{ ...oldSphereGeometry }, { ...oldCubeGeometry }]);
+// // Chunked array geometries
+// geometry = merge([{ ...oldSphereGeometry }, { ...oldCubeGeometry }]);
 
-// Mixed flat geometries
-geometry = merge([
-  { ...oldSphereGeometry },
-  propertiesArrayFrom({ ...cubeGeometry }),
-]);
+// // Mixed flat geometries
+// geometry = merge([
+//   { ...oldSphereGeometry },
+//   propertiesArrayFrom({ ...cubeGeometry }),
+// ]);
 // Mixed flat and chunked geometries: not supported
 // geometry = merge([{ ...oldSphereGeometry }, { ...cubeGeometry }]);
 

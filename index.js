@@ -119,19 +119,19 @@ function merge(geometries) {
 
       if (attribute === "cells") {
         if (areAllCellsFlatArray) {
-          mergedGeometry.cells = areAllCellsTypedArray
-            ? typedArrayConcat(
-                CellsConstructor,
-                mergedGeometry.cells,
-                // Add previous geometry vertex offset mapped via a new typed array
-                // because new value could be larger than what current type supports
-                new (typedArrayConstructor(vertexOffset + positionCount))(
-                  geometry.cells,
-                ).map((n) => vertexOffset + n),
-              )
-            : mergedGeometry.cells.concat(
-                geometry.cells.map((n) => vertexOffset + n),
-              );
+          if (areAllCellsTypedArray) {
+            mergedGeometry.cells = typedArrayConcat(
+              CellsConstructor,
+              mergedGeometry.cells,
+              // Add previous geometry vertex offset mapped via a new typed array
+              // because new value could be larger than what current type supports
+              new CellsConstructor(geometry.cells).map((n) => vertexOffset + n),
+            );
+          } else {
+            mergedGeometry.cells = mergedGeometry.cells.concat(
+              geometry.cells.map((n) => vertexOffset + n),
+            );
+          }
         } else {
           mergedGeometry.cells = mergedGeometry.cells.concat(
             // Chunk flat cells if needed
@@ -149,15 +149,15 @@ function merge(geometries) {
           ? geometry[attribute]
           : geometry[attribute].flat();
 
-        mergedGeometry[attribute] = isAttributeTypedArray(
-          mergedGeometry[attribute],
-        )
-          ? typedArrayConcat(
-              mergedGeometry[attribute].constructor,
-              mergedGeometry[attribute],
-              values,
-            )
-          : mergedGeometry[attribute].concat(values);
+        if (isAttributeTypedArray(mergedGeometry[attribute])) {
+          mergedGeometry[attribute] = typedArrayConcat(
+            mergedGeometry[attribute].constructor,
+            mergedGeometry[attribute],
+            values,
+          );
+        } else {
+          mergedGeometry[attribute] = mergedGeometry[attribute].concat(values);
+        }
       }
     }
 
