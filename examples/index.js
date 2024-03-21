@@ -19,14 +19,59 @@ const camera = createCamera({
 });
 const orbiter = createOrbiter({ camera });
 
+const propertiesArrayFrom = (obj) =>
+  Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      typeof value !== "string" ? Array.from(value) : value,
+    ]),
+  );
+
+// Geometries
+const sphereGeometry = sphere();
+sphereGeometry.name = `sphereGeometry`;
+const cubeGeometry = cube({ sx: 2, sy: 0.5, sz: 0.5 });
+cubeGeometry.name = `cubeGeometry`;
+const oldSphereGeometry = oldSphere(0.5);
+oldSphereGeometry.name = `oldSphereGeometry`;
+const oldCubeGeometry = oldCube(2, 0.5, 0.5);
+oldCubeGeometry.name = `oldCubeGeometry`;
+
+sphereGeometry.sphereExtra = [];
+cubeGeometry.cubeExtra = [];
+oldSphereGeometry.oldSphereExtra = [];
+oldCubeGeometry.oldCubeExtra = [];
+
 let geometry;
-// geometry = sphere();
+// Single geometry
+geometry = merge([{ ...sphereGeometry }]);
+geometry = merge([{ ...oldSphereGeometry }]);
+
+// Flat typed array geometries
 geometry = merge([
-  sphere(),
-  cube({ sx: 2, sy: 0.5, sz: 0.5 }),
+  { ...sphereGeometry },
+  { ...cubeGeometry },
   // cube({ sx: 2, sy: 0.5, sz: 0.5, nx: 200, ny: 200, nz: 200 }), // Testing cells Uint16/32 scaling
 ]);
-// geometry = merge([oldCube(2, 0.5, 0.5), oldSphere(0.5)]);
+
+// Flat array geometries
+geometry = merge([
+  propertiesArrayFrom({ ...sphereGeometry }),
+  // sphere()
+  propertiesArrayFrom({ ...cubeGeometry }),
+]);
+
+// Chunked array geometries
+geometry = merge([{ ...oldSphereGeometry }, { ...oldCubeGeometry }]);
+
+// Mixed flat geometries
+geometry = merge([
+  { ...oldSphereGeometry },
+  propertiesArrayFrom({ ...cubeGeometry }),
+]);
+// Mixed flat and chunked geometries: not supported
+// geometry = merge([{ ...oldSphereGeometry }, { ...cubeGeometry }]);
+
 console.log(geometry);
 
 const clearCmd = {
