@@ -1,9 +1,8 @@
-import typedArrayConcat from "typed-array-concat";
 import typedArrayConstructor from "typed-array-constructor";
 
 const isAttributeFlat = (attribute) => !attribute[0]?.length;
 
-const isAttributeTypedArray = (attribute) => !(attribute instanceof Array);
+const isAttributeTypedArray = (attribute) => !Array.isArray(attribute);
 
 const isAttributeArrayLike = (attribute) =>
   Array.isArray(attribute) || ArrayBuffer.isView(attribute);
@@ -13,30 +12,109 @@ const getGeometryAttributes = (geometry) =>
     isAttributeArrayLike(geometry[attribute]),
   );
 
-function chunkAndOffset(array, stride, offset) {
-  const result = [];
+const getFlatLength = (attribute) => {
+  if (isAttributeFlat(attribute)) return attribute.length;
+
+  let length = 0;
+  for (let i = 0; i < attribute.length; i++) length += attribute[i].length;
+  return length;
+};
+
+const writeFlat = (target, source, offset) => {
+  if (isAttributeFlat(source)) {
+    for (let i = 0; i < source.length; i++) target[offset++] = source[i];
+  } else {
+    for (let i = 0; i < source.length; i++) {
+      const item = source[i];
+      for (let j = 0; j < item.length; j++) target[offset++] = item[j];
+    }
+  }
+  return offset;
+};
+
+const writeChunked = (target, source, offset, stride, increment) => {
   let chunk = [];
-  for (let i = 0; i < array.length; i++) {
-    chunk.push(array[i] + offset);
+  for (let i = 0; i < source.length; i++) {
+    chunk.push(source[i] + increment);
     if (i % stride === stride - 1) {
-      result.push(chunk);
+      target[offset++] = chunk;
       chunk = [];
     }
   }
   if (chunk.length) {
     console.warn(
-      `Array length (${array.length}) is not a multiple of stride "${stride}".`,
+      `Array length (${source.length}) is not a multiple of stride "${stride}".`,
     );
-    result.push(chunk);
+    target[offset++] = chunk;
   }
-  return result;
-}
+  return offset;
+};
+
+const preallocateAndFill = (Constructor, geometries, getLength, write) => {
+  let length = 0;
+  for (let i = 0; i < geometries.length; i++) {
+    length += getLength(geometries[i], i);
+  }
+
+  const merged = new Constructor(length);
+
+  let offset = 0;
+  for (let i = 0; i < geometries.length; i++) {
+    offset = write(merged, geometries[i], offset, i);
+  }
+
+  return merged;
+};
+
+const mergeCells = (geometries, CellsConstructor, meta, areAllCellsFlatArray) =>
+  preallocateAndFill(
+    CellsConstructor,
+    geometries,
+    // Flat cells get chunked if any geometry has chunked cells
+    ({ cells }, i) =>
+      !areAllCellsFlatArray && meta[i].isCellsFlatArray
+        ? Math.ceil(cells.length / 3)
+        : cells.length,
+    (target, { cells }, offset, i) => {
+      const { vertexOffset, isCellsFlatArray } = meta[i];
+
+      if (areAllCellsFlatArray) {
+        // CellsConstructor is sized from the merged position count so offset indices fit
+        for (let j = 0; j < cells.length; j++) {
+          target[offset++] = cells[j] + vertexOffset;
+        }
+      } else if (isCellsFlatArray) {
+        offset = writeChunked(target, cells, offset, 3, vertexOffset);
+      } else {
+        for (let j = 0; j < cells.length; j++) {
+          target[offset++] = cells[j].map((n) => vertexOffset + n);
+        }
+      }
+      return offset;
+    },
+  );
+
+const mergeAttribute = (geometries, AttributeConstructor, attribute) =>
+  preallocateAndFill(
+    AttributeConstructor,
+    geometries,
+    (geometry) => getFlatLength(geometry[attribute]),
+    (target, geometry, offset) => {
+      const values = geometry[attribute];
+
+      if (isAttributeTypedArray(target) && isAttributeFlat(values)) {
+        target.set(values, offset);
+        return offset + values.length;
+      }
+      return writeFlat(target, values, offset);
+    },
+  );
 
 function merge(geometries) {
   let mergedPositionCount = 0;
   let areAllCellsFlatArray = true;
   let areAllCellsTypedArray = true;
-  const meta = new Array(geometries.length);
+  const meta = Array.from({ length: geometries.length });
 
   // Set mergeable attributes from first geometry
   const initialAttributes = getGeometryAttributes(geometries[0]);
@@ -81,8 +159,8 @@ function merge(geometries) {
 
     const isCellsFlatArray = isAttributeFlat(geometry.cells);
 
-    // Store attribute properties reused in the next loop
-    meta[i] = { positionCount, isCellsFlatArray };
+    // Store attribute properties reused when merging cells
+    meta[i] = { vertexOffset: mergedPositionCount, isCellsFlatArray };
 
     // Increment/update properties used to determine cells type
     mergedPositionCount += positionCount;
@@ -104,66 +182,19 @@ function merge(geometries) {
     ? typedArrayConstructor(mergedPositionCount)
     : Array;
 
-  const mergedGeometry = { cells: new CellsConstructor() };
+  const mergedGeometry = {};
 
-  let vertexOffset = 0;
+  for (let i = 0; i < mergeableAttributes.length; i++) {
+    const attribute = mergeableAttributes[i];
 
-  for (let i = 0; i < geometries.length; i++) {
-    const geometry = geometries[i];
-
-    const { positionCount, isCellsFlatArray } = meta[i];
-
-    for (let j = 0; j < mergeableAttributes.length; j++) {
-      const attribute = mergeableAttributes[j];
-
-      if (attribute === "cells") {
-        if (areAllCellsFlatArray) {
-          if (areAllCellsTypedArray) {
-            mergedGeometry.cells = typedArrayConcat(
-              CellsConstructor,
-              mergedGeometry.cells,
-              // Add previous geometry vertex offset mapped via a new typed array
-              // because new value could be larger than what current type supports
-              new CellsConstructor(geometry.cells).map((n) => vertexOffset + n),
-            );
-          } else {
-            mergedGeometry.cells = mergedGeometry.cells.concat(
-              geometry.cells.map((n) => vertexOffset + n),
-            );
-          }
-        } else {
-          mergedGeometry.cells = mergedGeometry.cells.concat(
-            // Chunk flat cells if needed
-            isCellsFlatArray
-              ? chunkAndOffset(geometry.cells, 3, vertexOffset)
-              : geometry.cells.map((cell) => cell.map((n) => vertexOffset + n)),
+    mergedGeometry[attribute] =
+      attribute === "cells"
+        ? mergeCells(geometries, CellsConstructor, meta, areAllCellsFlatArray)
+        : mergeAttribute(
+            geometries,
+            geometries[0][attribute].constructor,
+            attribute,
           );
-        }
-      } else {
-        // Create the merged attribute from first geometry type
-        mergedGeometry[attribute] ||= new geometry[attribute].constructor();
-
-        // Enforce returning flat arrays
-        const values = isAttributeFlat(geometry[attribute])
-          ? geometry[attribute]
-          : geometry[attribute].flat();
-
-        if (isAttributeTypedArray(mergedGeometry[attribute])) {
-          mergedGeometry[attribute] = typedArrayConcat(
-            mergedGeometry[attribute].constructor,
-            mergedGeometry[attribute],
-            values,
-          );
-        } else {
-          mergedGeometry[attribute] = mergedGeometry[attribute].concat(
-            // Cast values so concat works with typed arrays if first attribute is Array
-            Array.isArray(values) ? values : Array.from(values),
-          );
-        }
-      }
-    }
-
-    vertexOffset += positionCount;
   }
 
   return mergedGeometry;
