@@ -44,15 +44,15 @@ oldCubeGeometry.oldCubeExtra = [];
 
 let geometry;
 // Single geometry
-geometry = merge([{ ...sphereGeometry }]);
+// geometry = merge([{ ...sphereGeometry }]);
 // geometry = merge([{ ...oldSphereGeometry }]);
 
-// // Flat typed array geometries
-// geometry = merge([
-//   { ...sphereGeometry },
-//   { ...cubeGeometry },
-//   // cube({ sx: 2, sy: 0.5, sz: 0.5, nx: 200, ny: 200, nz: 200 }), // Testing cells Uint16/32 scaling
-// ]);
+// Flat typed array geometries
+geometry = merge([
+  { ...sphereGeometry },
+  { ...cubeGeometry },
+  // cube({ sx: 2, sy: 0.5, sz: 0.5, nx: 200, ny: 200, nz: 200 }), // Testing cells Uint16/32 scaling
+]);
 
 // // Flat array geometries
 // geometry = merge([

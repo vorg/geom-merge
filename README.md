@@ -31,9 +31,13 @@ const geometry = merge([cube(), sphere()]);
 
 geometry: `{ positions: TypedArray | Array | Array<[x, y, z]>, cells: TypedArray | Array | Array<[a, b, c]>, ...otherAttributesMergedAndFlattened: TypedArray | Array }` - new geometry with cells, and merged/flattened attributes.
 
-_Note 1: Each geometry object requires at least `positions` and `cells`. Other array-like properties like `uvs` or `normals` will be merged and flattened, if available in all geometries. Cells will be chunked if any of the geometries has chunked cells._
+Notes:
 
-_Note 2: This module doesn't perform CSG operations_
+- Each geometry object requires at least `positions` and `cells`.
+- Other array-like attributes like `uvs` or `normals` will be merged and flattened, if available in all geometries.
+- If the array-like attributes are a mix of Array and TypedArray, the type of the attribute on the first geometry will be used.
+- Cells will be chunked if any of the geometries has chunked cells.
+- This module doesn't perform CSG operations
 
 ## License
 

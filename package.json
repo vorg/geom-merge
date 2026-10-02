@@ -2,6 +2,7 @@
   "name": "geom-merge",
   "version": "3.0.0",
   "description": "Merge a list of geometries (simplicial complex) into one geometry and concat all other attributes.",
+  "sideEffects": false,
   "keywords": [
     "geom",
     "merge",
@@ -21,15 +22,19 @@
     "Damien Seguin (https://github.com/dmnsgn)"
   ],
   "type": "module",
-  "exports": "./index.js",
-  "main": "index.js",
-  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "main": "./index.js",
+  "types": "./types/index.d.ts",
   "scripts": {
     "dev": "snowdev dev",
     "release": "snowdev release"
   },
   "dependencies": {
-    "typed-array-concat": "^3.0.0",
     "typed-array-constructor": "^1.0.1"
   },
   "devDependencies": {
@@ -41,8 +46,9 @@
     "primitive-geometry": "^2.10.0",
     "primitive-sphere": "^3.0.0"
   },
+  "packageManager": "npm@11.3.0",
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=9.6.4"
+    "node": ">=24.0.0",
+    "snowdev": ">=3.0.0-alpha.3"
   }
 }
