@@ -1,8 +1,7 @@
 {
   "name": "geom-merge",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Merge a list of geometries (simplicial complex) into one geometry and concat all other attributes.",
-  "sideEffects": false,
   "keywords": [
     "geom",
     "merge",
@@ -15,12 +14,16 @@
   ],
   "homepage": "https://github.com/vorg/geom-merge",
   "bugs": "https://github.com/vorg/geom-merge/issues",
-  "repository": "vorg/geom-merge",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vorg/geom-merge.git"
+  },
   "license": "MIT",
   "author": "Marcin Ignac <marcin.ignac@gmail.com> (https://github.com/vorg)",
   "contributors": [
     "Damien Seguin (https://github.com/dmnsgn)"
   ],
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
